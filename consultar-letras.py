@@ -3,33 +3,33 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 import os
 import re
-
-
-# Função de pré-processamento
+from unidecode import unidecode
+#%%
 def preprocess(text):
-    # Substituir caracteres não alfabéticos por espaços em branco
-    text = re.sub(r'[^a-zA-Zá-úÁ-Ú]', ' ', text)
+    # Remover acentos
+    text = unidecode(text)
+
+    # Substituir caracteres não alfabéticos (incluindo vírgula) por espaços em branco
+    text = re.sub(r'[^a-zA-Z]', ' ', text)
 
     # Converter para minúsculas e dividir em palavras
     tokens = text.lower().split()
 
     return ' '.join(tokens)
-
-
-# Função para carregar as letras
+#%%
 def load_lyrics():
-    return joblib.load('lyrics_vector.joblib')
+    # Certifique-se de que os dados carregados são textos brutos antes do pré-processamento
+    raw_lyrics =  joblib.load('../lyrics_vector.joblib')
+    return [preprocess(text) for text in raw_lyrics]
 
 
-# Função para criar a matriz TF-IDF
+#%%
 def create_tfidf_matrix(lyrics):
-    preprocessed_lyrics = [preprocess(text) for text in lyrics]
     vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(preprocessed_lyrics)
+    tfidf_matrix = vectorizer.fit_transform(lyrics)
     return tfidf_matrix, vectorizer
 
-
-# Função para realizar uma consulta
+#%%
 def perform_query(query, vectorizer, tfidf_matrix, lyrics):
     preprocessed_query = preprocess(query)
     print(f"\nConsulta: {preprocessed_query}")
@@ -38,18 +38,12 @@ def perform_query(query, vectorizer, tfidf_matrix, lyrics):
     # Calcular similaridade
     cosine_similarities = linear_kernel(query_vector, tfidf_matrix).flatten()
 
-    # Contar o número de ocorrências da sequência na consulta
-    sequence_count = preprocessed_query.count(' ')
-
-    if sequence_count == 0:
-        sequence_count = 1
-
     # Adicionar um fator de prioridade para palavras em sequência
     sequence_priority = 100.0  # Ajuste conforme necessário
     for i in range(len(lyrics)):
         document = lyrics[i]
         occurrences = document.lower().count(preprocessed_query)
-        cosine_similarities[i] += sequence_priority * occurrences / sequence_count
+        cosine_similarities[i] += sequence_priority * occurrences
 
     document_scores = list(enumerate(cosine_similarities))
     sorted_documents = sorted(document_scores, key=lambda x: x[1], reverse=True)
@@ -60,19 +54,18 @@ def perform_query(query, vectorizer, tfidf_matrix, lyrics):
         print(
             f"Arquivo: {os.listdir('C:/Users/miguel/Documents/UFV/6 PERIODO/GRADI/musics-txt')[index]}, Pontuação: {score}")
 
+#%%
 
+# Carregar vetor de letras
+print("Carregando letras...")
+lyrics = load_lyrics()
 
-# Função principal
+# Criar matriz TF-IDF
+print("Criando matriz TF-IDF...")
+tfidf_matrix, vectorizer = create_tfidf_matrix(lyrics)
+print(f"Dimensões da matriz TF-IDF: {tfidf_matrix.shape}")
+#%%
 def main():
-    # Carregar vetor de letras
-    print("Carregando letras...")
-    lyrics = load_lyrics()
-
-    # Criar matriz TF-IDF
-    print("Criando matriz TF-IDF...")
-    tfidf_matrix, vectorizer = create_tfidf_matrix(lyrics)
-    print(f"Dimensões da matriz TF-IDF: {tfidf_matrix.shape}")
-
     # Menu de inserção de consulta
     while True:
         query = input("\nInsira sua consulta (ou 'exit' para sair): ")
@@ -83,5 +76,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-#%%
