@@ -2,6 +2,8 @@ import os
 import re
 import tkinter as tk
 from tkinter import Scrollbar, Text, END, filedialog
+from tkinter import messagebox
+
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -80,9 +82,11 @@ def perform_query():
     result_text.delete('1.0', END)
 
     # Adicionar resultados à área de texto
-    result_text.insert(tk.END, "Resultados:\n")
     for index, score in sorted_documents[:5]:
-        result_text.insert(tk.END, f"Arquivo: {music_names[index]}, Pontuação: {score}\n")
+        result_text.insert(tk.END, f"Música: ", "bold")
+        result_text.insert(tk.END, f"{music_names[index]}", "normal")
+        result_text.insert(tk.END, f", Pontuação: ", "bold")
+        result_text.insert(tk.END, f"{score}\n\n", "normal")
 
     # Desativar edição na área de texto
     result_text.config(state=tk.DISABLED)
@@ -114,6 +118,9 @@ def add_file_and_recalculate():
         tfidf_matrix, vectorizer = create_tfidf_matrix(lyrics)
         print(f"Dimensões da matriz TF-IDF: {tfidf_matrix.shape}")
 
+        messagebox.showinfo("Sucesso", f"Arquivo {os.path.basename(file_path)} adicionado com sucesso!")
+
+
 
 print("Carregando letras...")
 lyrics = load_lyrics('./arquivos')
@@ -132,7 +139,7 @@ root.title("Consulta de Letras")
 label_query = tk.Label(root, text="Insira sua consulta:")
 entry_query = tk.Entry(root, width=50)
 button_search = tk.Button(root, text="Buscar", command=perform_query)
-button_add_file = tk.Button(root, text="Adicionar Arquivo", command=add_file_and_recalculate)
+button_add_file = tk.Button(root, text="Adicionar música", command=add_file_and_recalculate)
 result_text = Text(root, wrap='word', width=80, height=20, state=tk.DISABLED)
 scrollbar = Scrollbar(root, command=result_text.yview)
 
@@ -143,6 +150,12 @@ button_search.pack(pady=5)
 button_add_file.pack(pady=5)
 result_text.pack(pady=10)
 scrollbar.pack(side='right', fill='y')
+
+# Configurar a tag de formatação
+result_text.tag_configure("bold", font=("Helvetica", 10, "bold"))
+result_text.tag_configure("normal", font=("Helvetica", 10, "normal"))
+
+
 
 # Configurar scrollbar para rolar o Text widget
 result_text.config(yscrollcommand=scrollbar.set)
