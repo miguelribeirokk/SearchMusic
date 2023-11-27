@@ -29,8 +29,6 @@ def load_lyrics(directory_path):
                 preprocessed_text = preprocess(text)
                 lyrics.append(preprocessed_text)
                 print(f"Arquivo {file} carregado")
-
-    print(lyrics)
     return lyrics
 
 
