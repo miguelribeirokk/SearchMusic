@@ -18,8 +18,7 @@ def preprocess(text):
     return ' '.join(tokens)
 #%%
 def load_lyrics():
-    # Certifique-se de que os dados carregados são textos brutos antes do pré-processamento
-    raw_lyrics =  joblib.load('../lyrics_vector.joblib')
+    raw_lyrics = joblib.load('lyrics_vector.joblib')
     return [preprocess(text) for text in raw_lyrics]
 
 
