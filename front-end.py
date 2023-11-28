@@ -44,8 +44,11 @@ def load_lyrics(directory_path):
         if file.endswith(".txt"):
             with open(os.path.join(directory_path, file), 'r', encoding='utf-8') as f:
                 text = f.read()
+                preprocessed_file_name = preprocess(file)
                 preprocessed_text = preprocess(text)
-                lyrics.append(preprocessed_text)
+                # Concatenar o nome do arquivo processado com o texto preprocessado
+                combined_text = f"{preprocessed_file_name} {preprocessed_text}"
+                lyrics.append(combined_text)
 
     return lyrics
 
