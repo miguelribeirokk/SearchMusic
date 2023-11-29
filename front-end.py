@@ -3,9 +3,7 @@ import re
 import tkinter as tk
 from tkinter import Scrollbar, Text, END, filedialog
 from tkinter import messagebox
-import webbrowser
 import pywhatkit
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from unidecode import unidecode
@@ -46,7 +44,6 @@ def load_lyrics(directory_path):
                 text = f.read()
                 preprocessed_file_name = preprocess(file)
                 preprocessed_text = preprocess(text)
-                # Concatenar o nome do arquivo processado com o texto preprocessado
                 combined_text = f"{preprocessed_file_name} {preprocessed_text}"
                 lyrics.append(combined_text)
 
@@ -70,16 +67,14 @@ def open_youtube_and_play(music_name):
 def perform_query():
     query = entry_query.get()
 
-    # Verificar se a consulta está vazia
     if not query:
         messagebox.showwarning("Aviso", "Por favor, insira uma consulta antes de pesquisar.")
         return
 
     preprocessed_query = preprocess(query)
+
     print(f"\nConsulta: {preprocessed_query}")
     query_vector = vectorizer.transform([preprocessed_query])
-
-    # Calcular similaridade
     cosine_similarities = linear_kernel(query_vector, tfidf_matrix).flatten()
 
     # Adicionar um fator de prioridade para palavras em sequência
@@ -124,7 +119,6 @@ def perform_query():
 def add_file_and_recalculate():
     global tfidf_matrix, vectorizer  # Adicione esta linha
     file_path = filedialog.askopenfilename(title="Selecione um arquivo TXT", filetypes=[("Arquivos de Texto", "*.txt")])
-
     if file_path:
         try:
             with open(file_path, 'r', encoding='utf-8') as f:

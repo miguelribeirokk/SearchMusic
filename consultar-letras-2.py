@@ -1,22 +1,20 @@
-import joblib
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel
 import os
 import re
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 from unidecode import unidecode
-#%%
+
+
+# %%
 def preprocess(text):
-    # Remover acentos
     text = unidecode(text)
-
-    # Substituir caracteres não alfabéticos (incluindo vírgula) por espaços em branco
     text = re.sub(r'[^a-zA-Z]', ' ', text)
-
-    # Converter para minúsculas e dividir em palavras
     tokens = text.lower().split()
-
     return ' '.join(tokens)
-#%%
+
+
+# %%
 def load_lyrics(directory_path):
     print(f"Carregando letras de {directory_path}...")
     lyrics = []
@@ -32,14 +30,14 @@ def load_lyrics(directory_path):
     return lyrics
 
 
-
-#%%
+# %%
 def create_tfidf_matrix(lyrics):
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(lyrics)
     return tfidf_matrix, vectorizer
 
-#%%
+
+# %%
 def perform_query(query, vectorizer, tfidf_matrix, lyrics):
     preprocessed_query = preprocess(query)
     print(f"\nConsulta: {preprocessed_query}")
@@ -64,13 +62,12 @@ def perform_query(query, vectorizer, tfidf_matrix, lyrics):
         print(
             f"Arquivo: {os.listdir('./arquivos')[index]}, Pontuação: {score}")
 
-#%%
 
-# Carregar vetor de letras
+# %%
+
 print("Carregando letras...")
 lyrics = load_lyrics('./arquivos')
 
-# Criar matriz TF-IDF
 print("Criando matriz TF-IDF...")
 tfidf_matrix, vectorizer = create_tfidf_matrix(lyrics)
 print("Portanto, para o primeiro documento (linha 0) e a palavra na coluna 5629, o valor TF-IDF é 0.028483012796560816")
@@ -78,13 +75,13 @@ print("Portanto, para o primeiro documento (linha 0) e a palavra na coluna 5629,
 print(f"Dimensões da matriz TF-IDF: {tfidf_matrix.shape}")
 print(tfidf_matrix)
 
-# Supondo que 'vectorizer' seja o objeto TfidfVectorizer que você usou
 feature_names = vectorizer.get_feature_names_out()
 word_at_index_5629 = feature_names[5629]
 
 print(f"A palavra associada ao índice 5629 é: {word_at_index_5629}")
 
-#%%
+
+# %%
 def main():
     # Menu de inserção de consulta
     while True:
